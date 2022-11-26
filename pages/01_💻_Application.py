@@ -20,11 +20,21 @@ def main():
         "C": np.array([0, 1, 0]).reshape(1, -1),
         "D": None,
     }
+    c1, c2 = st.columns(2)
 
-    disc_3 = logic.bilinear_transform(cont_3, 1e-3)
-    st.write(disc_3)
+    T3 = c1.number_input(
+        "T Matrix 3x3", value=0.001, min_value=0.0001, max_value=100.0, format="%f"
+    )
+    k3 = c2.number_input(
+        "k max Matrix 3x3",
+        value=1000,
+        min_value=1,
+    )
 
-    response_df_3 = logic.step_response_loop(disc_3, 1000, 1e-3)
+    disc_3 = logic.bilinear_transform(cont_3, T3)
+    st.write("Matrix 3x3 Discrete State Space", disc_3)
+
+    response_df_3 = logic.step_response_loop(disc_3, k3, T3)
     st.line_chart(response_df_3, x="k", y="Step Response")
     imp_fig_3 = go.Figure()
     utils.add_one_scatter(
@@ -41,10 +51,21 @@ def main():
         "D": None,
     }
 
-    disc_2 = logic.bilinear_transform(cont_2, 1e-3)
-    st.write(disc_2)
+    c3, c4 = st.columns(2)
 
-    response_df_2 = logic.step_response_loop(disc_2, 2000, 1e-3)
+    T2 = c3.number_input(
+        "T Matrix 2x2", value=0.001, min_value=0.0001, max_value=100.0, format="%f"
+    )
+    k2 = c4.number_input(
+        "k max Matrix 2x2",
+        value=1000,
+        min_value=1,
+    )
+
+    disc_2 = logic.bilinear_transform(cont_2, T2)
+    st.write("Matrix 2x2 Discrete State Space", disc_2)
+
+    response_df_2 = logic.step_response_loop(disc_2, k2, T2)
     st.line_chart(response_df_2, x="k", y="Step Response")
     imp_fig = go.Figure()
     utils.add_one_scatter(
@@ -88,10 +109,24 @@ x_2
         "C": np.array([0, 1]).reshape(1, -1),
         "D": None,
     }
+    c5, c6 = st.columns(2)
 
-    disc_2_2 = logic.bilinear_transform(cont_2_2, 0.1)
+    Th = c5.number_input(
+        "T Matrix True Ho-Kalman",
+        value=0.1,
+        min_value=0.0001,
+        max_value=100.0,
+        format="%f",
+    )
+    kh = c6.number_input(
+        "k max Matrix True Ho-Kalman",
+        value=300,
+        min_value=1,
+    )
+
+    disc_2_2 = logic.bilinear_transform(cont_2_2, Th)
     st.write("True System State Space in  Discrete", disc_2_2)
-    response_df_2_2 = logic.step_response_loop(disc_2_2, 300, 0.1)
+    response_df_2_2 = logic.step_response_loop(disc_2_2, kh, Th)
     st.line_chart(response_df_2_2, x="k", y="Step Response")
     imp_fig_3 = go.Figure()
     utils.add_one_scatter(
@@ -101,9 +136,19 @@ x_2
 
     st.markdown("#### Ho-Kalman Estimation")
 
-    ho_df = logic.ho_kalman(response_df_2_2["Impulse Response"], 100, 10)
+    c7, c8 = st.columns(2)
+    n_input = c7.number_input("Ho-Kalman N data input", value=100, min_value=1)
+    n_svd = c8.number_input(
+        "Ho-Kalman SVD data",
+        value=2,
+        min_value=1,
+    )
+
+    ho_df = logic.ho_kalman(
+        response_df_2_2["Impulse Response"], n_input, n_svd)
+
     st.write("Ho Kalman Estimation State Space", ho_df)
-    response_df_ho_kalman = logic.step_response_loop(ho_df, 300, 0.1)
+    response_df_ho_kalman = logic.step_response_loop(ho_df, kh, Th)
 
     st.line_chart(response_df_ho_kalman, x="k", y="Step Response")
     imp_fig_ho = go.Figure()
