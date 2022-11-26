@@ -12,6 +12,7 @@ plotly = "^5.10.0"
 pandas = "^1.4.4"
 stqdm = "^0.0.4"
 numba = "^0.56.3"
+scipy = "^1.9.3"
 
 [tool.poetry.dev-dependencies]
 
